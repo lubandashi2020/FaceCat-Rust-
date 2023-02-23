@@ -161,7 +161,26 @@ impl FCPaint{
 
 	fn draw_text(&mut self, context:&std::rc::Rc<web_sys::CanvasRenderingContext2d>, text:String, color:String, font:String, x:f32, y:f32){
 		if color != "none"{
-			context.set_font(&font);
+			if(self.m_scale_factor_x != 1.0 || self.m_scale_factor_y != 1.0){
+				let str_split:Vec<&str> = font.split(" ").collect();
+				let length = str_split.len();
+				if length > 1{
+					let mut newFont = String::from("");
+					for i in 0..length{
+						if(i == 0){
+							let pxStr = str_split[i as usize].replace("px", "");
+							let mut numFont : f32 = pxStr.parse::<f32>().unwrap();
+							numFont = numFont * self.m_scale_factor_x.min(self.m_scale_factor_y);
+							newFont = numFont.to_string() + "px ";
+						}else{
+							newFont += str_split[i as usize];
+						}
+					}
+					context.set_font(&newFont);
+				}
+			}else{
+				context.set_font(&font);
+			}
 			let c = JsValue::from(String::from(color));
 			context.set_fill_style(&c);  
 			context.set_text_align("left");
@@ -172,7 +191,26 @@ impl FCPaint{
 	
 	fn draw_text_auto_ellipsis(&mut self, context:&std::rc::Rc<web_sys::CanvasRenderingContext2d>, text:String, color:String, font:String, left:f32, top:f32, right:f32, bottom:f32){
 		if color != "none"{
-			context.set_font(&font);
+			if(self.m_scale_factor_x != 1.0 || self.m_scale_factor_y != 1.0){
+				let str_split:Vec<&str> = font.split(" ").collect();
+				let length = str_split.len();
+				if length > 1{
+					let mut newFont = String::from("");
+					for i in 0..length{
+						if(i == 0){
+							let pxStr = str_split[i as usize].replace("px", "");
+							let mut numFont : f32 = pxStr.parse::<f32>().unwrap();
+							numFont = numFont * self.m_scale_factor_x.min(self.m_scale_factor_y);
+							newFont = numFont.to_string() + "px ";
+						}else{
+							newFont += str_split[i as usize];
+						}
+					}
+					context.set_font(&newFont);
+				}
+			}else{
+				context.set_font(&font);
+			}
 			let c = JsValue::from(String::from(color));
 			context.set_fill_style(&c);  
 			context.set_text_align("left");

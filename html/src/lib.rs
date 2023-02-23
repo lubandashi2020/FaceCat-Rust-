@@ -1176,15 +1176,21 @@ pub fn start() -> Result<(), JsValue> {
         .dyn_into::<web_sys::HtmlCanvasElement>()?;
 
     document.body().unwrap().append_child(&canvas)?;
-
-    canvas.set_width(900);
-    canvas.set_height(800);
-    canvas.style().set_property("border", "solid")?;
+	let devicePixelRatio = window.device_pixel_ratio();
+	unsafe{
+		canvas.set_width(M_CANVAS_WIDTH as u32);
+		canvas.set_height(M_CANVAS_HEIGHT as u32);
+		//M_CANVAS_WIDTH = M_CANVAS_WIDTH * devicePixelRatio as f32;
+		//M_CANVAS_HEIGHT = M_CANVAS_HEIGHT * devicePixelRatio as f32;
+		//M_PAINT.lock().unwrap().m_scale_factor_x = devicePixelRatio as f32;
+		//M_PAINT.lock().unwrap().m_scale_factor_y = devicePixelRatio as f32;
+	}
+    //canvas.style().set_property("border", "solid")?;
     let context = canvas
         .get_context("2d")?
         .unwrap()
         .dyn_into::<web_sys::CanvasRenderingContext2d>()?;
-
+	//context.scale(1.0 / devicePixelRatio, 1.0 / devicePixelRatio);
     let context = Rc::new(context);
     let pressed = Rc::new(Cell::new(false));
 
@@ -1215,15 +1221,19 @@ pub fn start() -> Result<(), JsValue> {
     if rustMode == 0{
 		let mut chart_view:FCView = FCView::new();
 		chart_view.m_location = FCPoint{x:0.0, y:0.0};
-		chart_view.m_size = FCSize{cx:900.0, cy:500.0};
+		unsafe{
+			chart_view.m_size = FCSize{cx:M_CANVAS_WIDTH, cy:M_CANVAS_HEIGHT * 0.6};
+		}
 		chart_view.m_back_color = "rgb(0,0,0)".to_string();
 		chart_view.m_border_color = "rgb(100,100,100)".to_string();
 		chart_view.m_type = "chart".to_string();
 		chart_view.m_id = add_view(chart_view.clone());
 		
 		let mut grid_view:FCView = FCView::new();
-		grid_view.m_location = FCPoint{x:0.0, y:500.0};
-		grid_view.m_size = FCSize{cx:500.0, cy:300.0};
+		unsafe{
+			grid_view.m_location = FCPoint{x:0.0, y:M_CANVAS_HEIGHT * 0.6};
+			grid_view.m_size = FCSize{cx:M_CANVAS_WIDTH * 0.6, cy:M_CANVAS_HEIGHT * 0.4};
+		}
 		grid_view.m_back_color = "rgb(0,0,0)".to_string();
 		grid_view.m_border_color = "rgb(100,100,100)".to_string();
 		grid_view.m_type = "grid".to_string();
@@ -1279,8 +1289,10 @@ pub fn start() -> Result<(), JsValue> {
 		grid.m_columns.push(grid_column6);
 		
 		let mut div_view:FCView = FCView::new();
-		div_view.m_location = FCPoint{x:500.0, y:500.0};
-		div_view.m_size = FCSize{cx:200.0, cy:150.0};
+		unsafe{
+			div_view.m_location = FCPoint{x:M_CANVAS_WIDTH * 0.6, y:M_CANVAS_HEIGHT * 0.6};
+			div_view.m_size = FCSize{cx:M_CANVAS_WIDTH * 0.2, cy:M_CANVAS_HEIGHT * 0.2};
+		}
 		div_view.m_back_color = "rgb(0,0,0)".to_string();
 		div_view.m_border_color = "rgb(100,100,100)".to_string();
 		div_view.m_type = "div".to_string();
@@ -1325,8 +1337,10 @@ pub fn start() -> Result<(), JsValue> {
 		}
 		
 		let mut split_view:FCView = FCView::new();
-		split_view.m_location = FCPoint{x:500.0, y:650.0};
-		split_view.m_size = FCSize{cx:200.0, cy:150.0};
+		unsafe{
+			split_view.m_location = FCPoint{x:M_CANVAS_WIDTH * 0.6, y:M_CANVAS_HEIGHT * 0.8};
+			split_view.m_size = FCSize{cx:M_CANVAS_WIDTH * 0.2, cy:M_CANVAS_HEIGHT * 0.2};
+		}
 		split_view.m_back_color = "rgb(0,0,0)".to_string();
 		split_view.m_border_color = "rgb(100,100,100)".to_string();
 		split_view.m_type = "split".to_string();
@@ -1356,8 +1370,10 @@ pub fn start() -> Result<(), JsValue> {
 		M_SPLIT_MAP.lock().unwrap().insert(split_view.m_id, split.clone());
 		
 		let mut layout_view:FCView = FCView::new();
-		layout_view.m_location = FCPoint{x:700.0, y:500.0};
-		layout_view.m_size = FCSize{cx:200.0, cy:150.0};
+		unsafe{
+			layout_view.m_location = FCPoint{x:M_CANVAS_WIDTH * 0.8, y:M_CANVAS_HEIGHT * 0.6};
+			layout_view.m_size = FCSize{cx:M_CANVAS_WIDTH * 0.2, cy:M_CANVAS_HEIGHT * 0.2};
+		}
 		layout_view.m_back_color = "rgb(0,0,0)".to_string();
 		layout_view.m_border_color = "rgb(100,100,100)".to_string();
 		layout_view.m_type = "layout".to_string();
@@ -1399,8 +1415,10 @@ pub fn start() -> Result<(), JsValue> {
 		M_LAYOUT_MAP.lock().unwrap().insert(layout_view.m_id, layout_div.clone());
 		
 		let mut tab_view:FCView = FCView::new();
-		tab_view.m_location = FCPoint{x:700.0, y:650.0};
-		tab_view.m_size = FCSize{cx:200.0, cy:150.0};
+		unsafe{
+			tab_view.m_location = FCPoint{x:M_CANVAS_WIDTH * 0.8, y:M_CANVAS_HEIGHT * 0.8};
+			tab_view.m_size = FCSize{cx:M_CANVAS_WIDTH * 0.2, cy:M_CANVAS_HEIGHT * 0.2};
+		}
 		tab_view.m_back_color = "rgb(0,0,0)".to_string();
 		tab_view.m_border_color = "rgb(100,100,100)".to_string();
 		tab_view.m_type = "layout".to_string();
