@@ -1178,19 +1178,17 @@ pub fn start() -> Result<(), JsValue> {
     document.body().unwrap().append_child(&canvas)?;
 	let devicePixelRatio = window.device_pixel_ratio();
 	unsafe{
-		canvas.set_width(M_CANVAS_WIDTH as u32);
-		canvas.set_height(M_CANVAS_HEIGHT as u32);
-		//M_CANVAS_WIDTH = M_CANVAS_WIDTH * devicePixelRatio as f32;
-		//M_CANVAS_HEIGHT = M_CANVAS_HEIGHT * devicePixelRatio as f32;
-		//M_PAINT.lock().unwrap().m_scale_factor_x = devicePixelRatio as f32;
-		//M_PAINT.lock().unwrap().m_scale_factor_y = devicePixelRatio as f32;
+		canvas.set_width((M_CANVAS_WIDTH * devicePixelRatio as f32) as u32);
+		canvas.set_height((M_CANVAS_HEIGHT * devicePixelRatio as f32) as u32);
+		canvas.style().set_property(&("width".to_string()), &(M_CANVAS_WIDTH.to_string() + "px"));
+		canvas.style().set_property(&("height".to_string()), &(M_CANVAS_HEIGHT.to_string() + "px"));
 	}
     //canvas.style().set_property("border", "solid")?;
     let context = canvas
         .get_context("2d")?
         .unwrap()
         .dyn_into::<web_sys::CanvasRenderingContext2d>()?;
-	//context.scale(1.0 / devicePixelRatio, 1.0 / devicePixelRatio);
+	context.scale(devicePixelRatio, devicePixelRatio);
     let context = Rc::new(context);
     let pressed = Rc::new(Cell::new(false));
 
