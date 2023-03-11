@@ -664,7 +664,7 @@ pub fn on_touch_end(context:&std::rc::Rc<web_sys::CanvasRenderingContext2d>, vie
 			}
 		}
 		invalidate_view(context, view.clone());
-    }else if view.m_type == "grid"{;
+    }else if view.m_type == "grid"{
 		for (id, v) in M_GRID_MAP.lock().unwrap().iter_mut(){
 			if view.m_id == *id{
 				(*v).m_view = view.clone();
@@ -889,6 +889,7 @@ pub fn read_xml_node(element:&std::rc::Rc<web_sys::Element>, parent:&mut FCView)
 					let sun_node_name = sun_node.node_name().to_lowercase();
 					if sun_node_name == "th"{
 						let mut grid_column:FCGridColumn = FCGridColumn::new();
+						grid_column.m_allow_resize = true;
 						if M_PAINT.lock().unwrap().m_default_ui_style == "dark"{
 							grid_column.m_back_color = "rgb(0,0,0)".to_string();
 							grid_column.m_border_color = "rgb(100,100,100)".to_string();

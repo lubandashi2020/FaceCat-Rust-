@@ -14,6 +14,10 @@ pub static mut M_IS_MOBILE:bool = false;
 pub static mut M_CANVAS_WIDTH:f32 = 900.0;
 pub static mut M_CANVAS_HEIGHT:f32 = 800.0;
 pub static mut M_ADDING_PLOT:i32 = -1;
+pub static mut M_RESIZE_COLUMN_STATE:i32 = 0;
+pub static mut M_RESIZE_COLUMN_BEGINWIDTH:f32 = 0.0;
+pub static mut M_RESIZE_COLUMN_INDEX:i32 = -1;
+pub static mut M_START_POINT:FCPoint = FCPoint{x:0.0, y:0.0};
 
 pub static mut M_DRAG_BEGIN_POINT:FCPoint = FCPoint{x:0.0, y:0.0};
 pub static mut M_DRAG_BEGIN_RECT:FCRect = FCRect{left:0.0, top:0.0, right:0.0, bottom:0.0};

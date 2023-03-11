@@ -13,7 +13,8 @@ pub struct FCGridColumn{
 	m_visible:bool,
 	m_index:i32,
 	m_bounds:FCRect,
-	m_allowSort:bool
+	m_allow_sort:bool,
+	m_allow_resize:bool
 }
 
 impl FCGridColumn{
@@ -32,7 +33,8 @@ impl FCGridColumn{
 			m_visible:true,
 			m_index:-1,
 			m_bounds:FCRect{left:0.0, top:0.0, right:0.0, bottom:0.0},
-			m_allowSort:true
+			m_allow_sort:true,
+			m_allow_resize:false
 		}
 	}
 }
@@ -307,6 +309,17 @@ pub fn draw_grid(context:&std::rc::Rc<web_sys::CanvasRenderingContext2d>, grid:&
 pub fn mouse_move_grid(grid:&mut FCGrid, first_touch:bool, second_touch:bool, first_point:FCPoint, second_point:FCPoint){
 	if first_touch {
 		let mp = first_point.clone();
+		unsafe{
+			if (M_RESIZE_COLUMN_STATE != 0) {
+				let mut grid_column = (&grid.m_columns[M_RESIZE_COLUMN_INDEX as usize]).clone();
+				let newWidth = M_RESIZE_COLUMN_BEGINWIDTH + (mp.x - grid.m_view.m_start_point.x);
+				if (newWidth > 10.0) {
+					grid_column.m_width = newWidth;
+				}
+				grid.m_columns[M_RESIZE_COLUMN_INDEX as usize] = grid_column.clone();
+				return;
+			}
+		}
 		if grid.m_view.m_show_hscrollbar || grid.m_view.m_show_vscrollbar{
 			if grid.m_view.m_down_scroll_hbutton {
 				let content_width = get_grid_content_width(grid);
@@ -415,12 +428,51 @@ pub fn mouse_down_grid(grid:&mut FCGrid, first_touch:bool, second_touch:bool, fi
 		grid.m_view.m_start_scroll_h = grid.m_view.m_scroll_h;
 		grid.m_view.m_start_scroll_v = grid.m_view.m_scroll_v;
 	}
+	let mut col_left = 0.0;
+	for i in 0..grid.m_columns.len(){
+		let mut grid_column = (&grid.m_columns[i]).clone();
+		let col_rect= FCRect{left:col_left, top:0.0, right:col_left + grid_column.m_width, bottom:grid.m_header_height};
+		grid_column.m_bounds = col_rect;
+		grid_column.m_index = i as i32;
+		col_left = col_left + grid_column.m_width;
+		grid.m_columns[i] = grid_column;
+	}
+	unsafe{
+		M_RESIZE_COLUMN_STATE = 0;
+		M_RESIZE_COLUMN_BEGINWIDTH = 0.0;
+		if grid.m_header_height > 0.0 && mp.y <= grid.m_header_height {
+			for i in 0..grid.m_columns.len(){
+				let grid_column = (&grid.m_columns[i]).clone();
+				if grid_column.m_visible {
+					let bounds = grid_column.m_bounds;
+					if mp.x >= bounds.left && mp.x <= bounds.right {
+						if grid_column.m_index > 0 && mp.x < bounds.left + 5.0 {
+							M_RESIZE_COLUMN_STATE = 1;
+							let last_column = (&grid.m_columns[(grid_column.m_index - 1) as usize]).clone();
+							M_RESIZE_COLUMN_BEGINWIDTH = last_column.m_bounds.right - last_column.m_bounds.left;
+							M_RESIZE_COLUMN_INDEX = grid_column.m_index - 1;
+						}
+						else if mp.x > bounds.right - 5.0 {
+							M_RESIZE_COLUMN_STATE = 2;
+							M_RESIZE_COLUMN_BEGINWIDTH = bounds.right - bounds.left;
+							M_RESIZE_COLUMN_INDEX = grid_column.m_index;
+						}
+						break;
+					}
+				}
+			}
+		}
+	}
 }
 
 pub fn mouse_up_grid(grid:&mut FCGrid, first_touch:bool, second_touch:bool, first_point:FCPoint, second_point:FCPoint){
 	grid.m_view.m_down_scroll_hbutton = false;
 	grid.m_view.m_down_scroll_vbutton = false;
 	unsafe{
+		if(M_RESIZE_COLUMN_STATE != 0){
+			M_RESIZE_COLUMN_STATE = 0;
+			return;
+		}
 		if M_CANCEL_CLICK{
 			return;
 		}
