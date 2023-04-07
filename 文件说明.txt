@@ -1,0 +1,20 @@
+app.js node.js的启动文件
+setup.txt 安装教程
+package.json node.js的配置
+package-lock.json node.js的配置2
+
+html/index.html启动页面
+html/Cargo.lock Cargo的自动生成文件
+html/Cargo.toml Cargo的配置
+
+html/src/facecat.rs 主框架
+html/src/btn.rs 按钮组件
+html/src/chart.rs K线组件
+html/src/div.rs 滚动图层组件
+html/src/grid.rs 表格组件
+html/src/input.rs 输入组件
+html/src/layout.rs 横竖布局组件
+html/src/split.rs 分割图层组件
+html/src/tab.rs 多页夹组件
+html/src/lib.rs 示例文件
+html/src/demo.xml 配置的XML
